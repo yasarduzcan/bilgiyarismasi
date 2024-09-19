@@ -1,10 +1,21 @@
-// Sorular ve cevaplar için bir veri yapısı
+// Kullanıcı verilerini saklamak için localStorage'ı kullanıyoruz
+let userData = {
+    username: "unknown",  // Kullanıcının adı (gerçek uygulamalarda giriş alınabilir)
+    answeredQuestions: [] // Cevapladığı soruların listesi (soruların index'leri)
+};
+
+// Tarayıcıda daha önce veri varsa, onu yükle
+if (localStorage.getItem('userData')) {
+    userData = JSON.parse(localStorage.getItem('userData'));
+}
+
+// Soruların karışık sırada gelmesi için bir dizi
 const questions = [
     {
-        questionImage: "soru1.png",  // Sorunun resim dosyası
+        questionImage: "soru1.png",
         choices: ["A", "B", "C", "D", "E"],
-        correctAnswerIndex: 2,  // Doğru cevabın dizideki sırası (örneğin 2 = Seçenek C)
-        solutionImage: "cozum1.png"  // Çözüm resim dosyası
+        correctAnswerIndex: 2,
+        solutionImage: "cozum1.png"
     },
     {
         questionImage: "soru2.png",
@@ -12,14 +23,38 @@ const questions = [
         correctAnswerIndex: 0,
         solutionImage: "cozum2.png"
     },
-    // Daha fazla soru eklenebilir
+    // Daha fazla soru ekleyebilirsin
 ];
 
-let currentQuestionIndex = 0;  // Şu anki sorunun indeksi
+// Soruları karıştırma fonksiyonu (Fisher-Yates shuffle algoritması)
+function shuffleQuestions(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
+}
 
-// Sayfaya soruyu yükleyen fonksiyon
+// Kullanıcıya sorulacak soruları karışık sıraya sokuyoruz
+let shuffledQuestions = shuffleQuestions([...questions]);
+
+// Şu anki sorunun indeksi
+let currentQuestionIndex = 0;
+
+// Soruyu yükle ve cevabı kontrol et
 function loadQuestion() {
-    const currentQuestion = questions[currentQuestionIndex];  // Şu anki soru
+    // Daha önce cevaplanmamış bir soru bulana kadar ilerle
+    while (userData.answeredQuestions.includes(currentQuestionIndex) && currentQuestionIndex < shuffledQuestions.length) {
+        currentQuestionIndex++;
+    }
+
+    // Eğer tüm sorular bitti ise testi bitir
+    if (currentQuestionIndex >= shuffledQuestions.length) {
+        alert("Test tamamlandı! Tüm soruları cevapladınız.");
+        return;
+    }
+
+    const currentQuestion = shuffledQuestions[currentQuestionIndex];
 
     // Soru resmini güncelle
     document.querySelector('.question-image').src = currentQuestion.questionImage;
@@ -53,19 +88,24 @@ function checkAnswer(element, isCorrect) {
         element.style.backgroundColor = "salmon";
     }
 
-    solutionImage.src = questions[currentQuestionIndex].solutionImage;  // Çözüm resmini güncelle
-    solutionImage.style.display = "block";  // Çözümü göster
+    // Çözümü göster
+    solutionImage.src = shuffledQuestions[currentQuestionIndex].solutionImage;
+    solutionImage.style.display = "block";
+
+    // Cevaplanan soruyu kullanıcının yanıtladığı sorular listesine ekle
+    userData.answeredQuestions.push(currentQuestionIndex);
+
+    // Kullanıcı verilerini localStorage'da sakla
+    localStorage.setItem('userData', JSON.stringify(userData));
+
+    // Şıkları pasif hale getir
     disableChoices();
 }
 
-// Bir sonraki soruya geçiş
+// Bir sonraki soruya geçiş fonksiyonu
 function nextQuestion() {
     currentQuestionIndex++;  // Sonraki soruya geç
-    if (currentQuestionIndex < questions.length) {
-        loadQuestion();  // Yeni soruyu yükle
-    } else {
-        alert("Test tamamlandı!");
-    }
+    loadQuestion();  // Yeni soruyu yükle
 }
 
 // Şıkları pasif hale getirme
@@ -77,5 +117,5 @@ function disableChoices() {
     });
 }
 
-// İlk soruyu yükle
+// Test başlarken ilk soruyu yükle
 loadQuestion();
