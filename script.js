@@ -1,86 +1,93 @@
-const questions = [
-    {
-        question: 'https://drive.google.com/uc?id=YOUR_QUESTION_IMAGE_ID1',
-        options: [
-            { src: 'https://drive.google.com/uc?id=YOUR_OPTION_IMAGE_ID1', isCorrect: true },
-            { src: 'https://drive.google.com/uc?id=YOUR_OPTION_IMAGE_ID2', isCorrect: false },
-            { src: 'https://drive.google.com/uc?id=YOUR_OPTION_IMAGE_ID3', isCorrect: false },
-            { src: 'https://drive.google.com/uc?id=YOUR_OPTION_IMAGE_ID4', isCorrect: false },
-            { src: 'https://drive.google.com/uc?id=YOUR_OPTION_IMAGE_ID5', isCorrect: false }
-        ],
-        feedback: 'https://drive.google.com/uc?id=YOUR_FEEDBACK_IMAGE_ID1'
+// Google Drive'dan soru ve cevap dosyalarını getireceğiz
+let questions = [
+    { 
+        questionImg: 'https://drive.google.com/uc?export=view&id=SORU1_ID',
+        answers: ['A', 'B', 'C', 'D', 'E'],
+        correctAnswer: 2, // C şıkkı
+        explanationImg: 'https://drive.google.com/uc?export=view&id=CEVAP1_ID'
     },
-    // Add more questions here
+    {
+        questionImg: 'https://drive.google.com/uc?export=view&id=SORU2_ID',
+        answers: ['A', 'B', 'C', 'D', 'E'],
+        correctAnswer: 0, // A şıkkı
+        explanationImg: 'https://drive.google.com/uc?export=view&id=CEVAP2_ID'
+    },
+    {
+        questionImg: 'https://drive.google.com/uc?export=view&id=SORU3_ID',
+        answers: ['A', 'B', 'C', 'D', 'E'],
+        correctAnswer: 4, // E şıkkı
+        explanationImg: 'https://drive.google.com/uc?export=view&id=CEVAP3_ID'
+    }
 ];
 
 let currentQuestionIndex = 0;
-let shuffledQuestions = [];
+let usedQuestions = [];
 
-function shuffle(array) {
-    for (let i = array.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [array[i], array[j]] = [array[j], array[i]];
-    }
-    return array;
+function startTest() {
+    shuffleQuestions();
+    showQuestion();
 }
 
-function loadQuestion() {
-    if (shuffledQuestions.length === 0) {
-        shuffledQuestions = shuffle(questions.slice());
-    }
+function shuffleQuestions() {
+    questions = questions.sort(() => Math.random() - 0.5);
+}
 
-    const question = shuffledQuestions[currentQuestionIndex];
-    document.getElementById('question-image').src = question.question;
-    const optionsContainer = document.getElementById('options-container');
-    optionsContainer.innerHTML = '';
+function showQuestion() {
+    const questionContainer = document.getElementById('question-container');
+    const answerButtons = document.getElementById('answer-buttons');
+    const feedback = document.getElementById('feedback');
+    const nextButton = document.getElementById('next-button');
 
-    question.options.forEach((option, index) => {
-        const optionElement = document.createElement('div');
-        optionElement.className = 'option';
-        optionElement.innerHTML = `<img src="${option.src}" alt="Option Image">`;
-        optionElement.addEventListener('click', () => handleOptionClick(option.isCorrect, option.src));
-        optionsContainer.appendChild(optionElement);
+    // Temizle
+    feedback.innerHTML = '';
+    nextButton.style.display = 'none';
+    answerButtons.innerHTML = '';
+
+    // Soru resmi
+    const currentQuestion = questions[currentQuestionIndex];
+    questionContainer.innerHTML = `<img src="${currentQuestion.questionImg}" alt="Soru">`;
+
+    // Cevap şıkları
+    currentQuestion.answers.forEach((answer, index) => {
+        const button = document.createElement('button');
+        button.textContent = answer;
+        button.addEventListener('click', () => selectAnswer(index));
+        answerButtons.appendChild(button);
+    });
+}
+
+function selectAnswer(selectedIndex) {
+    const currentQuestion = questions[currentQuestionIndex];
+    const buttons = document.querySelectorAll('#answer-buttons button');
+    const feedback = document.getElementById('feedback');
+    const nextButton = document.getElementById('next-button');
+
+    buttons.forEach((button, index) => {
+        if (index === currentQuestion.correctAnswer) {
+            button.classList.add('correct');
+        } else if (index === selectedIndex) {
+            button.classList.add('wrong');
+        }
+        button.disabled = true;
     });
 
-    document.getElementById('feedback-container').style.display = 'none';
-    document.getElementById('next-button').style.display = 'none';
-}
-
-function handleOptionClick(isCorrect, feedbackImageSrc) {
-    const options = document.querySelectorAll('.option');
-    options.forEach(option => option.removeEventListener('click', handleOptionClick));
-
-    const feedbackContainer = document.getElementById('feedback-container');
-    const feedbackImage = document.getElementById('feedback-image');
-    const feedbackText = document.getElementById('feedback-text');
-
-    if (isCorrect) {
-        options.forEach(option => {
-            if (option.innerHTML.includes(feedbackImageSrc)) {
-                option.classList.add('correct');
-            }
-        });
-        feedbackContainer.style.display = 'none';
-        document.getElementById('next-button').style.display = 'block';
+    if (selectedIndex === currentQuestion.correctAnswer) {
+        nextButton.style.display = 'block';
     } else {
-        options.forEach(option => {
-            if (option.innerHTML.includes(feedbackImageSrc)) {
-                option.classList.add('incorrect');
-            }
-        });
-        feedbackImage.src = feedbackImageSrc;
-        feedbackText.textContent = 'Incorrect. Please review the feedback below.';
-        feedbackContainer.style.display = 'block';
+        feedback.innerHTML = `<img src="${currentQuestion.explanationImg}" alt="Çözüm">`;
     }
+    
+    usedQuestions.push(currentQuestion);
 }
 
 document.getElementById('next-button').addEventListener('click', () => {
     currentQuestionIndex++;
-    if (currentQuestionIndex >= shuffledQuestions.length) {
-        currentQuestionIndex = 0;
-        shuffledQuestions = shuffle(questions.slice());
+    if (currentQuestionIndex < questions.length) {
+        showQuestion();
+    } else {
+        alert("Test tamamlandı!");
+        // Kullanıcının aynı soruları görmemesi için gerekli işlemleri yapabilirsiniz.
     }
-    loadQuestion();
 });
 
-window.onload = loadQuestion;
+startTest();
