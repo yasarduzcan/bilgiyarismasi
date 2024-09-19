@@ -34,7 +34,8 @@ h1 {
 .choices {
     margin-top: 20px;
     display: flex;
-    justify-content: space-around;
+    justify-content: center; /* Butonları ortala */
+    gap: 15px; /* Butonlar arasında boşluk */
 }
 
 .choice {
