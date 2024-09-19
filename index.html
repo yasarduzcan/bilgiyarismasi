@@ -10,18 +10,26 @@
     <div class="container">
         <h1>Test Çözme Platformu</h1>
         <div class="question-section">
+            <!-- Soru JPG -->
             <img src="soru1.png" alt="Soru 1" class="question-image">
+
+            <!-- Seçenekler -->
             <div class="choices">
-                <button class="choice" onclick="checkAnswer(this, false)">A) Seçenek A</button>
-                <button class="choice" onclick="checkAnswer(this, false)">B) Seçenek B</button>
-                <button class="choice" onclick="checkAnswer(this, true)">C) Seçenek C</button>
-                <button class="choice" onclick="checkAnswer(this, false)">D) Seçenek D</button>
-                <button class="choice" onclick="checkAnswer(this, false)">E) Seçenek E</button>
+                <!-- Yuvarlak butonlar -->
+                <button class="choice" onclick="checkAnswer(this, false)">A</button>
+                <button class="choice" onclick="checkAnswer(this, false)">B</button>
+                <button class="choice" onclick="checkAnswer(this, true)">C</button>
+                <button class="choice" onclick="checkAnswer(this, false)">D</button>
+                <button class="choice" onclick="checkAnswer(this, false)">E</button>
             </div>
+
+            <!-- Geri bildirim -->
             <div class="feedback">
                 <p class="feedback-text"></p>
                 <img src="cozum1.png" alt="Soru 1 Çözüm" class="solution-image" style="display: none;">
             </div>
+
+            <!-- Sonraki Soru Butonu -->
             <button class="next-question" onclick="nextQuestion()">Sonraki Soru</button>
         </div>
     </div>
