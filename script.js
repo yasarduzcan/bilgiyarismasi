@@ -1,59 +1,86 @@
 const questions = [
-    // Example question structure
     {
-        image: 'question1.png',
-        answers: ['A', 'B', 'C', 'D', 'E'],
-        correctAnswer: 'A',
-        solutionImage: 'solution1.png'
+        question: 'https://drive.google.com/uc?id=YOUR_QUESTION_IMAGE_ID1',
+        options: [
+            { src: 'https://drive.google.com/uc?id=YOUR_OPTION_IMAGE_ID1', isCorrect: true },
+            { src: 'https://drive.google.com/uc?id=YOUR_OPTION_IMAGE_ID2', isCorrect: false },
+            { src: 'https://drive.google.com/uc?id=YOUR_OPTION_IMAGE_ID3', isCorrect: false },
+            { src: 'https://drive.google.com/uc?id=YOUR_OPTION_IMAGE_ID4', isCorrect: false },
+            { src: 'https://drive.google.com/uc?id=YOUR_OPTION_IMAGE_ID5', isCorrect: false }
+        ],
+        feedback: 'https://drive.google.com/uc?id=YOUR_FEEDBACK_IMAGE_ID1'
     },
-    // Add more questions as needed
+    // Add more questions here
 ];
 
 let currentQuestionIndex = 0;
+let shuffledQuestions = [];
+
+function shuffle(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
+}
 
 function loadQuestion() {
-    const question = questions[currentQuestionIndex];
-    document.getElementById('question-image').src = question.image;
+    if (shuffledQuestions.length === 0) {
+        shuffledQuestions = shuffle(questions.slice());
+    }
 
-    const answerButtons = document.getElementById('answer-buttons');
-    answerButtons.innerHTML = '';
-    
-    question.answers.forEach(answer => {
-        const button = document.createElement('button');
-        button.innerText = answer;
-        button.classList.add('btn');
-        button.onclick = () => checkAnswer(answer, question.correctAnswer);
-        answerButtons.appendChild(button);
+    const question = shuffledQuestions[currentQuestionIndex];
+    document.getElementById('question-image').src = question.question;
+    const optionsContainer = document.getElementById('options-container');
+    optionsContainer.innerHTML = '';
+
+    question.options.forEach((option, index) => {
+        const optionElement = document.createElement('div');
+        optionElement.className = 'option';
+        optionElement.innerHTML = `<img src="${option.src}" alt="Option Image">`;
+        optionElement.addEventListener('click', () => handleOptionClick(option.isCorrect, option.src));
+        optionsContainer.appendChild(optionElement);
     });
 
-    document.getElementById('solution').innerHTML = '';
+    document.getElementById('feedback-container').style.display = 'none';
+    document.getElementById('next-button').style.display = 'none';
 }
 
-function checkAnswer(selectedAnswer, correctAnswer) {
-    const buttons = document.querySelectorAll('#answer-buttons .btn');
-    buttons.forEach(button => {
-        if (button.innerText === correctAnswer) {
-            button.classList.add('correct');
-        } else if (button.innerText === selectedAnswer) {
-            button.classList.add('incorrect');
-            document.getElementById('solution').innerHTML = `<img src="${questions[currentQuestionIndex].solutionImage}" alt="Solution">`;
-        }
-    });
-    disableButtons();
-}
+function handleOptionClick(isCorrect, feedbackImageSrc) {
+    const options = document.querySelectorAll('.option');
+    options.forEach(option => option.removeEventListener('click', handleOptionClick));
 
-function disableButtons() {
-    const buttons = document.querySelectorAll('#answer-buttons .btn');
-    buttons.forEach(button => button.disabled = true);
-}
+    const feedbackContainer = document.getElementById('feedback-container');
+    const feedbackImage = document.getElementById('feedback-image');
+    const feedbackText = document.getElementById('feedback-text');
 
-function nextQuestion() {
-    currentQuestionIndex++;
-    if (currentQuestionIndex < questions.length) {
-        loadQuestion();
+    if (isCorrect) {
+        options.forEach(option => {
+            if (option.innerHTML.includes(feedbackImageSrc)) {
+                option.classList.add('correct');
+            }
+        });
+        feedbackContainer.style.display = 'none';
+        document.getElementById('next-button').style.display = 'block';
     } else {
-        alert('No more questions!');
+        options.forEach(option => {
+            if (option.innerHTML.includes(feedbackImageSrc)) {
+                option.classList.add('incorrect');
+            }
+        });
+        feedbackImage.src = feedbackImageSrc;
+        feedbackText.textContent = 'Incorrect. Please review the feedback below.';
+        feedbackContainer.style.display = 'block';
     }
 }
+
+document.getElementById('next-button').addEventListener('click', () => {
+    currentQuestionIndex++;
+    if (currentQuestionIndex >= shuffledQuestions.length) {
+        currentQuestionIndex = 0;
+        shuffledQuestions = shuffle(questions.slice());
+    }
+    loadQuestion();
+});
 
 window.onload = loadQuestion;
