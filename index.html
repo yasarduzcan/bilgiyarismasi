@@ -1,39 +1,24 @@
 <!DOCTYPE html>
-<html lang="tr">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Test Çözme Sitesi</title>
-    <link rel="stylesheet" href="style.css">
+    <title>Test Solver</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <div class="container">
-        <h1>Test Çözme Platformu</h1>
-        <div class="question-section">
-            <!-- Soru JPG -->
-            <img src="soru1.png" alt="Soru 1" class="question-image">
-
-            <!-- Seçenekler -->
-            <div class="choices">
-                <!-- Yuvarlak butonlar -->
-                <button class="choice" onclick="checkAnswer(this, false)">A</button>
-                <button class="choice" onclick="checkAnswer(this, false)">B</button>
-                <button class="choice" onclick="checkAnswer(this, true)">C</button>
-                <button class="choice" onclick="checkAnswer(this, false)">D</button>
-                <button class="choice" onclick="checkAnswer(this, false)">E</button>
+        <div id="question-container">
+            <img id="question-image" src="" alt="Question Image">
+            <div id="answer-buttons" class="btn-container">
+                <!-- Answer buttons will be dynamically inserted here -->
             </div>
-
-            <!-- Geri bildirim -->
-            <div class="feedback">
-                <p class="feedback-text"></p>
-                <img src="cozum1.png" alt="Soru 1 Çözüm" class="solution-image" style="display: none;">
+            <div id="solution" class="solution">
+                <!-- Solution image will be dynamically inserted here -->
             </div>
-
-            <!-- Sonraki Soru Butonu -->
-            <button class="next-question" onclick="nextQuestion()">Sonraki Soru</button>
         </div>
+        <button id="next-button" class="btn" onclick="nextQuestion()">Next</button>
     </div>
-
     <script src="script.js"></script>
 </body>
 </html>
