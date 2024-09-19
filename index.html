@@ -1,24 +1,82 @@
 <!DOCTYPE html>
-<html lang="tr">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Test Çözme Sitesi</title>
-    <link rel="stylesheet" href="style.css">
+    <title>Test Çözme Platformu</title>
+    <style>
+        body { font-family: Arial, sans-serif; }
+        .question { margin-bottom: 20px; }
+        .options { display: flex; flex-direction: column; }
+        .option { margin: 5px 0; cursor: pointer; padding: 10px; border: 1px solid #ccc; }
+        .option.correct { background-color: green; color: white; }
+        .option.wrong { background-color: red; color: white; }
+        .answer { display: none; }
+    </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Test Çözme Sitesi</h1>
-        <div id="question-container" class="question-container">
-            <!-- Soru resimleri burada dinamik olarak yüklenecek -->
-        </div>
-        <div id="answer-buttons" class="answer-buttons">
-            <!-- Cevap şıkları burada dinamik olarak yüklenecek -->
-        </div>
-        <div id="feedback" class="feedback"></div>
-        <button id="next-button" class="next-button" style="display: none;">Sonraki Soru</button>
-    </div>
+    <h1>Test Çözme Platformu</h1>
+    <div id="app"></div>
 
-    <script src="app.js"></script>
+    <script>
+        const questions = [
+            {
+                question: 'Soru 1',
+                questionImg: 'https://drive.google.com/uc?export=view&id=YOUR_QUESTION1_ID',
+                answerImg: 'https://drive.google.com/uc?export=view&id=YOUR_ANSWER1_ID',
+                options: ['A', 'B', 'C', 'D', 'E'],
+                correctAnswer: 2
+            },
+            {
+                question: 'Soru 2',
+                questionImg: 'https://drive.google.com/uc?export=view&id=YOUR_QUESTION2_ID',
+                answerImg: 'https://drive.google.com/uc?export=view&id=YOUR_ANSWER2_ID',
+                options: ['A', 'B', 'C', 'D', 'E'],
+                correctAnswer: 0
+            },
+            // Devam eden sorular
+        ];
+
+        let currentQuestionIndex = 0;
+
+        function showQuestion() {
+            const app = document.getElementById('app');
+            const questionObj = questions[currentQuestionIndex];
+            app.innerHTML = `
+                <div class="question">
+                    <img src="${questionObj.questionImg}" alt="Question Image" width="300"/>
+                </div>
+                <div class="options">
+                    ${questionObj.options.map((option, index) => `
+                        <div class="option" onclick="selectOption(${index})">${option}</div>
+                    `).join('')}
+                </div>
+                <div class="answer">
+                    <img src="${questionObj.answerImg}" alt="Answer Image" width="300"/>
+                </div>
+            `;
+        }
+
+        function selectOption(selectedIndex) {
+            const questionObj = questions[currentQuestionIndex];
+            const options = document.querySelectorAll('.option');
+            if (selectedIndex === questionObj.correctAnswer) {
+                options[selectedIndex].classList.add('correct');
+                setTimeout(() => {
+                    currentQuestionIndex++;
+                    if (currentQuestionIndex < questions.length) {
+                        showQuestion();
+                    } else {
+                        alert('Test Tamamlandı!');
+                    }
+                }, 1000);
+            } else {
+                options[selectedIndex].classList.add('wrong');
+                document.querySelector('.answer').style.display = 'block';
+            }
+        }
+
+        showQuestion();
+    </script>
 </body>
 </html>
