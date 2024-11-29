@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Başarı UZEM - Admin Paneli</title>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <style>
+        .collapsible-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+        }
+        .collapsible-content.open {
+            max-height: 500px;
+            overflow-y: auto;
+        }
+        .arrow {
+            transition: transform 0.3s ease;
+        }
+        .arrow.open {
+            transform: rotate(180deg);
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <div class="min-h-screen">
+        <nav class="bg-blue-600 text-white p-4">
+            <div class="container mx-auto flex justify-between items-center">
+                <h1 class="text-2xl font-bold">Admin Paneli</h1>
+                <button onclick="logout()" class="bg-red-500 px-4 py-2 rounded hover:bg-red-600">Çıkış Yap</button>
+            </div>
+        </nav>
+
+        <div class="container mx-auto p-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <!-- Onay Bekleyen Öğrenciler -->
+                <div class="bg-white p-4 rounded-lg shadow">
+                    <h2 class="text-xl font-bold mb-4">Onay Bekleyen Öğrenciler</h2>
+                    <div id="pendingStudents" class="space-y-4"></div>
+                </div>
+
+                <!-- Onaylı Öğrenciler -->
+                <div class="bg-white p-4 rounded-lg shadow">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-xl font-bold">Onaylı Öğrenciler</h2>
+                        <button onclick="toggleApprovedStudents()" class="flex items-center text-gray-600 hover:text-gray-800">
+                            <span id="studentCount" class="mr-2">0 Öğrenci</span>
+                            <svg id="arrow" class="arrow w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                            </svg>
+                        </button>
+                    </div>
+                    <div id="approvedStudents" class="collapsible-content space-y-4"></div>
+                </div>
+
+                <!-- Duyuru Yönetimi -->
+                <div class="bg-white p-4 rounded-lg shadow">
+                    <h2 class="text-xl font-bold mb-4">Duyuru Ekle</h2>
+                    <form id="announcementForm" class="space-y-4">
+                        <div>
+                            <label class="block text-gray-700 mb-2">Duyuru Başlığı</label>
+                            <input type="text" id="announcementTitle" class="w-full p-2 border rounded" required>
+                        </div>
+                        <div>
+                            <label class="block text-gray-700 mb-2">Duyuru İçeriği</label>
+                            <textarea id="announcementContent" class="w-full p-2 border rounded" rows="4" required></textarea>
+                        </div>
+                        <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Duyuru Ekle</button>
+                    </form>
+                </div>
+
+                <!-- Mevcut Duyurular -->
+                <div class="bg-white p-4 rounded-lg shadow">
+                    <h2 class="text-xl font-bold mb-4">Mevcut Duyurular</h2>
+                    <div id="existingAnnouncements" class="space-y-4"></div>
+                </div>
+
+                <!-- Link Yönetimi -->
+                <div class="bg-white p-4 rounded-lg shadow">
+                    <h2 class="text-xl font-bold mb-4">Link Yönetimi</h2>
+                    <form id="linkForm" class="space-y-4">
+                        <div>
+                            <label class="block text-gray-700 mb-2">Link Başlığı</label>
+                            <input type="text" id="linkTitle" class="w-full p-2 border rounded" required>
+                        </div>
+                        <div>
+                            <label class="block text-gray-700 mb-2">Link URL</label>
+                            <input type="url" id="linkUrl" class="w-full p-2 border rounded" required>
+                        </div>
+                        <div>
+                            <label class="block text-gray-700 mb-2">Kategori</label>
+                            <select id="linkCategory" class="w-full p-2 border rounded" required>
+                                <option value="liveClass">Canlı Ders</option>
+                                <option value="documents">Dokümanlar</option>
+                                <option value="exams">Online Denemeler</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-gray-700 mb-2">Erişim İzni</label>
+                            <select id="linkAccess" class="w-full p-2 border rounded" required>
+                                <option value="all">Tüm Öğrenciler</option>
+                                <option value="specific">Seçili Öğrenciler</option>
+                            </select>
+                        </div>
+                        <div id="studentSelection" class="hidden">
+                            <label class="block text-gray-700 mb-2">Öğrenci Seç</label>
+                            <div id="studentCheckboxes" class="space-y-2 max-h-40 overflow-y-auto"></div>
+                        </div>
+                        <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Link Ekle</button>
+                    </form>
+                </div>
+
+                <!-- Mevcut Linkler -->
+                <div class="bg-white p-4 rounded-lg shadow">
+                    <h2 class="text-xl font-bold mb-4">Mevcut Linkler</h2>
+                    <div id="existingLinks" class="space-y-4"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyCE5ljG4XmNgqrPyz3PSOffrCNVkEpibsw",
+            authDomain: "basariuzemyeni.firebaseapp.com",
+            projectId: "basariuzemyeni",
+            storageBucket: "basariuzemyeni.firebasestorage.app",
+            messagingSenderId: "980136502319",
+            appId: "1:980136502319:web:5b10cfea3df54b2a35d2da",
+            measurementId: "G-GXJJ11W5EV"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        // Onaylı öğrenciler listesini aç/kapat
+        function toggleApprovedStudents() {
+            const content = document.getElementById('approvedStudents');
+            const arrow = document.getElementById('arrow');
+            content.classList.toggle('open');
+            arrow.classList.toggle('open');
+        }
+
+        // Onay bekleyen öğrencileri listele
+        function loadPendingStudents() {
+            db.collection('users')
+                .where('isApproved', '==', false)
+                .where('role', '==', 'student')
+                .onSnapshot((snapshot) => {
+                    const pendingStudentsDiv = document.getElementById('pendingStudents');
+                    pendingStudentsDiv.innerHTML = '';
+                    
+                    if (snapshot.empty) {
+                        pendingStudentsDiv.innerHTML = '<p class="text-gray-500">Onay bekleyen öğrenci bulunmamaktadır.</p>';
+                        return;
+                    }
+
+                    snapshot.forEach((doc) => {
+                        const student = doc.data();
+                        const studentElement = document.createElement('div');
+                        studentElement.className = 'p-4 border rounded';
+                        studentElement.innerHTML = `
+                            <p><strong>${student.firstName} ${student.lastName}</strong></p>
+                            <p>Email: ${student.email}</p>
+                            <p>Telefon: ${student.phone}</p>
+                            <div class="mt-2">
+                                <button onclick="approveStudent('${doc.id}')" class="bg-green-500 text-white px-4 py-2 rounded mr-2 hover:bg-green-600">Onayla</button>
+                                <button onclick="rejectStudent('${doc.id}')" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600">Reddet</button>
+                            </div>
+                        `;
+                        pendingStudentsDiv.appendChild(studentElement);
+                    });
+                });
+        }
+
+        // Onaylı öğrencileri listele
+        function loadApprovedStudents() {
+            db.collection('users')
+                .where('isApproved', '==', true)
+                .where('role', '==', 'student')
+                .onSnapshot((snapshot) => {
+                    const approvedStudentsDiv = document.getElementById('approvedStudents');
+                    const studentCount = document.getElementById('studentCount');
+                    approvedStudentsDiv.innerHTML = '';
+                    
+                    if (snapshot.empty) {
+                        approvedStudentsDiv.innerHTML = '<p class="text-gray-500">Onaylı öğrenci bulunmamaktadır.</p>';
+                        studentCount.textContent = '0 Öğrenci';
+                        return;
+                    }
+
+                    studentCount.textContent = `${snapshot.size} Öğrenci`;
+
+                    snapshot.forEach((doc) => {
+                        const student = doc.data();
+                        const studentElement = document.createElement('div');
+                        studentElement.className = 'p-4 border rounded';
+                        studentElement.innerHTML = `
+                            <p><strong>${student.firstName} ${student.lastName}</strong></p>
+                            <p>Email: ${student.email}</p>
+                            <p>Telefon: ${student.phone}</p>
+                            <button onclick="deleteApprovedStudent('${doc.id}')" class="bg-red-500 text-white px-4 py-2 rounded mt-2 hover:bg-red-600">Öğrenciyi Sil</button>
+                        `;
+                        approvedStudentsDiv.appendChild(studentElement);
+                    });
+
+                    updateStudentCheckboxes(snapshot.docs);
+                });
+        }
+
+        // Onaylı öğrenciyi sil
+        function deleteApprovedStudent(userId) {
+            if (confirm('Bu öğrenciyi silmek istediğinizden emin misiniz?')) {
+                db.collection('users').doc(userId).delete()
+                    .then(() => {
+                        alert('Öğrenci başarıyla silindi');
+                    }).catch((error) => {
+                        alert('Hata: ' + error.message);
+                    });
+            }
+        }
+
+        // Öğrenci onaylama
+        function approveStudent(userId) {
+            db.collection('users').doc(userId).update({
+                isApproved: true,
+                approvedAt: new Date()
+            }).then(() => {
+                alert('Öğrenci başarıyla onaylandı');
+            }).catch((error) => {
+                alert('Hata: ' + error.message);
+            });
+        }
+
+        // Öğrenci reddetme
+        function rejectStudent(userId) {
+            if (confirm('Bu öğrenciyi reddetmek istediğinizden emin misiniz?')) {
+                db.collection('users').doc(userId).delete()
+                    .then(() => {
+                        alert('Öğrenci başarıyla reddedildi');
+                    }).catch((error) => {
+                        alert('Hata: ' + error.message);
+                    });
+            }
+        }
+
+        // Öğrenci seçim kutularını güncelle
+        function updateStudentCheckboxes(students) {
+            const studentCheckboxes = document.getElementById('studentCheckboxes');
+            studentCheckboxes.innerHTML = '';
+            
+            students.forEach((doc) => {
+                const student = doc.data();
+                const div = document.createElement('div');
+                div.className = 'flex items-center';
+                div.innerHTML = `
+                    <input type="checkbox" id="student-${doc.id}" value="${doc.id}" class="mr-2">
+                    <label for="student-${doc.id}">${student.firstName} ${student.lastName}</label>
+                `;
+                studentCheckboxes.appendChild(div);
+            });
+        }
+
+        // Link erişim tipine göre öğrenci seçimini göster/gizle
+        document.getElementById('linkAccess').addEventListener('change', (e) => {
+            const studentSelection = document.getElementById('studentSelection');
+            studentSelection.classList.toggle('hidden', e.target.value !== 'specific');
+        });
+
+        // Duyuru ekleme
+        document.getElementById('announcementForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const title = document.getElementById('announcementTitle').value;
+            const content = document.getElementById('announcementContent').value;
+
+            db.collection('announcements').add({
+                title: title,
+                content: content,
+                createdAt: new Date()
+            }).then(() => {
+                alert('Duyuru başarıyla eklendi');
+                e.target.reset();
+            }).catch((error) => {
+                alert('Hata: ' + error.message);
+            });
+        });
+
+        // Mevcut duyuruları listele
+        function loadAnnouncements() {
+            db.collection('announcements')
+                .orderBy('createdAt', 'desc')
+                .onSnapshot((snapshot) => {
+                    const announcementsDiv = document.getElementById('existingAnnouncements');
+                    announcementsDiv.innerHTML = '';
+                    
+                    if (snapshot.empty) {
+                        announcementsDiv.innerHTML = '<p class="text-gray-500">Henüz duyuru bulunmamaktadır.</p>';
+                        return;
+                    }
+
+                    snapshot.forEach((doc) => {
+                        const announcement = doc.data();
+                        const announcementElement = document.createElement('div');
+                        announcementElement.className = 'p-4 border rounded';
+                        announcementElement.innerHTML = `
+                            <h3 class="font-bold">${announcement.title}</h3>
+                            <p class="mt-2">${announcement.content}</p>
+                            <p class="text-sm text-gray-500 mt-2">${announcement.createdAt.toDate().toLocaleDateString()}</p>
+                            <button onclick="deleteAnnouncement('${doc.id}')" class="bg-red-500 text-white px-4 py-2 rounded mt-2 hover:bg-red-600">Duyuruyu Sil</button>
+                        `;
+                        announcementsDiv.appendChild(announcementElement);
+                    });
+                });
+        }
+
+        // Duyuru silme
+        function deleteAnnouncement(announcementId) {
+            if (confirm('Bu duyuruyu silmek istediğinizden emin misiniz?')) {
+                db.collection('announcements').doc(announcementId).delete()
+                    .then(() => {
+                        alert('Duyuru başarıyla silindi');
+                    }).catch((error) => {
+                        alert('Hata: ' + error.message);
+                    });
+            }
+        }
+
+        // Link ekleme
+        document.getElementById('linkForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const title = document.getElementById('linkTitle').value;
+            const url = document.getElementById('linkUrl').value;
+            const category = document.getElementById('linkCategory').value;
+            const access = document.getElementById('linkAccess').value;
+            
+            let allowedUsers = [];
+            if (access === 'specific') {
+                const checkboxes = document.querySelectorAll('#studentCheckboxes input:checked');
+                allowedUsers = Array.from(checkboxes).map(cb => cb.value);
+                if (allowedUsers.length === 0) {
+                    alert('Lütfen en az bir öğrenci seçin');
+                    return;
+                }
+            }
+
+            db.collection('links').add({
+                title: title,
+                url: url,
+                category: category,
+                access: access,
+                allowedUsers: allowedUsers,
+                createdAt: new Date()
+            }).then(() => {
+                alert('Link başarıyla eklendi');
+                e.target.reset();
+                document.getElementById('studentSelection').classList.add('hidden');
+            }).catch((error) => {
+                alert('Hata: ' + error.message);
+            });
+        });
+
+        // Mevcut linkleri listele
+        function loadLinks() {
+            db.collection('links').orderBy('createdAt', 'desc').onSnapshot((snapshot) => {
+                const linksDiv = document.getElementById('existingLinks');
+                linksDiv.innerHTML = '';
+                
+                if (snapshot.empty) {
+                    linksDiv.innerHTML = '<p class="text-gray-500">Henüz link eklenmemiş.</p>';
+                    return;
+                }
+
+                snapshot.forEach((doc) => {
+                    const link = doc.data();
+                    const linkElement = document.createElement('div');
+                    linkElement.className = 'p-4 border rounded';
+                    linkElement.innerHTML = `
+                        <p><strong>${link.title}</strong></p>
+                        <p>URL: <a href="${link.url}" target="_blank" class="text-blue-600 hover:text-blue-800">${link.url}</a></p>
+                        <p>Kategori: ${link.category}</p>
+                        <p>Erişim: ${link.access === 'all' ? 'Tüm Öğrenciler' : 'Seçili Öğrenciler'}</p>
+                        <button onclick="deleteLink('${doc.id}')" class="bg-red-500 text-white px-4 py-2 rounded mt-2 hover:bg-red-600">Sil</button>
+                    `;
+                    linksDiv.appendChild(linkElement);
+                });
+            });
+        }
+
+        // Link silme
+        function deleteLink(linkId) {
+            if (confirm('Bu linki silmek istediğinizden emin misiniz?')) {
+                db.collection('links').doc(linkId).delete()
+                    .then(() => {
+                        alert('Link başarıyla silindi');
+                    }).catch((error) => {
+                        alert('Hata: ' + error.message);
+                    });
+            }
+        }
+
+        // Çıkış yapma
+        function logout() {
+            firebase.auth().signOut()
+                .then(() => {
+                    window.location.href = 'login.html';
+                }).catch((error) => {
+                    alert('Hata: ' + error.message);
+                });
+        }
+
+        // Admin kontrolü
+        firebase.auth().onAuthStateChanged((user) => {
+            if (user) {
+                db.collection('users').doc(user.uid).get()
+                    .then((doc) => {
+                        if (!doc.exists || doc.data().role !== 'admin') {
+                            alert('Bu sayfaya erişim yetkiniz yok!');
+                            window.location.href = 'login.html';
+                        }
+                    });
+            } else {
+                window.location.href = 'login.html';
+            }
+        });
+
+        // Sayfa yüklendiğinde
+        document.addEventListener('DOMContentLoaded', () => {
+            loadPendingStudents();
+            loadApprovedStudents();
+            loadAnnouncements();
+            loadLinks();
+        });
+    </script>
+</body>
+</html>

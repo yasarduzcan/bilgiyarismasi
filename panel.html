@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Başarı UZEM - Öğrenci Paneli</title>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100">
+    <div class="min-h-screen">
+        <nav class="bg-blue-600 text-white p-4">
+            <div class="container mx-auto flex justify-between items-center">
+                <div class="flex items-center">
+                    <img src="images/uzem1.png" alt="Başarı UZEM Logo" class="h-10 mr-4">
+                    <h1 class="text-2xl font-bold">Öğrenci Paneli</h1>
+                </div>
+                <div class="flex items-center">
+                    <span id="studentName" class="mr-4"></span>
+                    <button onclick="logout()" class="bg-red-500 px-4 py-2 rounded hover:bg-red-600">Çıkış Yap</button>
+                </div>
+            </div>
+        </nav>
+
+        <div class="container mx-auto p-4">
+            <!-- Motivasyon Sözü -->
+            <div class="bg-white p-6 rounded-lg shadow-lg mb-6">
+                <p id="motivationalQuote" class="text-xl text-center italic text-gray-700"></p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Duyurular -->
+                <div class="bg-white p-6 rounded-lg shadow-lg">
+                    <h2 class="text-2xl font-bold mb-4">Duyurular</h2>
+                    <div id="announcements" class="space-y-4"></div>
+                </div>
+
+                <!-- Canlı Dersler -->
+                <div class="bg-white p-6 rounded-lg shadow-lg">
+                    <h2 class="text-2xl font-bold mb-4">Canlı Dersler</h2>
+                    <div id="liveClasses" class="space-y-4"></div>
+                </div>
+
+                <!-- Dokümanlar -->
+                <div class="bg-white p-6 rounded-lg shadow-lg">
+                    <h2 class="text-2xl font-bold mb-4">Dokümanlar</h2>
+                    <div id="documents" class="space-y-4"></div>
+                </div>
+
+                <!-- Online Denemeler -->
+                <div class="bg-white p-6 rounded-lg shadow-lg">
+                    <h2 class="text-2xl font-bold mb-4">Online Denemeler</h2>
+                    <div id="exams" class="space-y-4"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyCE5ljG4XmNgqrPyz3PSOffrCNVkEpibsw",
+            authDomain: "basariuzemyeni.firebaseapp.com",
+            projectId: "basariuzemyeni",
+            storageBucket: "basariuzemyeni.firebasestorage.app",
+            messagingSenderId: "980136502319",
+            appId: "1:980136502319:web:5b10cfea3df54b2a35d2da",
+            measurementId: "G-GXJJ11W5EV"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        let currentUserId = null;
+
+        // Motivasyon sözleri
+        const motivationalQuotes = [
+            "Kaygı hissetmek insan olmanın bir parçasıdır, ama unutma: sen kaygından daha güçlüsün.",
+            "Zor bir sınav, hazırlıklı bir zihinle kolaylaşır.",
+            "Kaygını başarıya dönüştürmek için nefes al, sakinleş ve başlamaya odaklan.",
+            "Sınav anı, bilgini sergileme zamanıdır, korkma.",
+            "Kaygı, başarıya giden yolda karşılaşacağın küçük bir engeldir; onu aşmak senin elinde.",
+            "Unutma, kaygı sadece düşündüğün kadar büyük.",
+            "Derin nefesler al ve kendine şunu hatırlat: elinden gelenin en iyisini yapıyorsun.",
+            "Kaygıya değil, çalışmaya odaklan; başarı seni bulur.",
+            "Bugün kaygıyla savaşmak, yarın gururla gülümsemektir.",
+            "Her büyük başarı küçük bir cesaretle başlar.",
+            "Sınavlar, insanı tanımlamaz; çaban tanımlar.",
+            "Zor bir sınav, senin için bir fırsattır.",
+            "Kaygını dinle ama ona hükmetme.",
+            "Hata yapmaktan korkma, çünkü hatalar öğrenmenin kapısını açar.",
+            "Sınav sadece bir basamak; yolculuk senin eserin.",
+            "Kaygıya teslim olmak, potansiyeline ihanet etmektir.",
+            "Hatalarını fırsata çevir; onlardan ders al.",
+            "Sınav sadece bilgi değil, sakin kalma becerini de ölçer.",
+            "Kaygının sesi yüksek olsa da, içindeki gücün sesi daha güçlüdür.",
+            "Bugünün sınavı, yarının başarısı için bir adım.",
+            "Her sabah, bugün hayallerime bir adım daha yaklaşacağım diye uyan.",
+            "Motivasyon geçici olabilir, ama alışkanlıklar kalıcıdır.",
+            "Küçük adımlar büyük değişimlere yol açar.",
+            "Her gün, dünden daha iyi olmaya çalış.",
+            "Başarı bir gecede gelmez, ama her gün çalışarak bir gün gelir.",
+            "Kendi hikayeni yaz; başrol her zaman sen ol.",
+            "Bugün çalışmazsan, yarın hayallerine nasıl ulaşacaksın?",
+            "Başarıya giden yol cesaretle başlar.",
+            "Kendine inan, çünkü yapabilirsin!",
+            "Motivasyonunu kaybettiğinde, neden başladığını hatırla.",
+            "Başarıyı hayal et, sonra onu gerçekleştirmek için çalış.",
+            "Her yeni gün, yeniden başlamak için bir şanstır.",
+            "Bugün yaptıkların, yarın sahip olacaklarını belirler.",
+            "Hayallerine ulaşmak için her şey senin elinde.",
+            "Kendi ışığını bul ve onunla yolu aydınlat.",
+            "Her başarısızlık, yeni bir başlangıçtır.",
+            "Büyük işler, küçük adımlarla başlar.",
+            "Zirveye çıkmak için ilk adımı atmalısın.",
+            "Yapabileceğine inanırsan, zaten başarmışsın demektir.",
+            "Başarının anahtarı, vazgeçmemektir.",
+            "Hedefsiz bir yolculuk, nereye gideceğini bilememektir.",
+            "Hedef koy ve o hedefe doğru yürümeye başla.",
+            "Hedefin seni korkutuyorsa, doğru hedefi seçmişsindir.",
+            "Küçük hedefler, büyük hayalleri gerçeğe dönüştürür.",
+            "Hedefin ne kadar büyükse, çaban da o kadar büyük olmalı.",
+            "Hayal et, plan yap ve harekete geç.",
+            "Hedefine ulaşmak, sadece zaman meselesidir.",
+            "Net bir hedef, seni başarıya götürür.",
+            "Hedeflerini yaz, onlara her gün bak ve çalış.",
+            "Hedefin bir hayalden fazlası olmalı; bir plan yap ve uygula.",
+            "Hedefsiz bir insan, yönsüz bir gemi gibidir.",
+            "Hedeflerin seni heyecanlandırıyorsa, doğru yoldasın.",
+            "Her başarı, bir hedefle başlar.",
+            "Bir hedefin olsun ve ona sıkıca sarıl.",
+            "Hedeflerini belirle, sonra onları gerçekleştirmek için harekete geç.",
+            "Hedefine ulaşmanın ilk adımı, ona inanmaktır.",
+            "Hedefler, hayalleri gerçeğe dönüştürmenin yoludur.",
+            "Hedefsiz yaşam, boş bir çerçeve gibidir.",
+            "Başarılı olmak için önce ne istediğini bilmelisin.",
+            "Hedefin olmadan, başarı sadece bir hayal olarak kalır.",
+            "Zorluklar, güçlü yanlarını keşfetmen için bir fırsattır.",
+            "Her düşüş, yeniden kalkmak için bir şanstır.",
+            "Zorluklar seni yıldırmasın, seni güçlendirsin.",
+            "Başarı, zorlukların üstesinden gelmekten geçer.",
+            "Zorluklar seni korkutmasın; onlar başarının parçasıdır.",
+            "Karanlık anlar, yıldızların parladığı anlardır.",
+            "Her zorluk, seni daha güçlü yapar.",
+            "Pes etmek, zorlukların seni yenmesine izin vermektir.",
+            "Zorluklarla yüzleşmek, büyümenin bir parçasıdır.",
+            "Zorluklar seni test eder, ama yılmazsan kazanırsın.",
+            "Her mücadele, daha büyük bir başarının kapısını açar.",
+            "Zorluklar, seni zirveye taşır.",
+            "Pes etmeyenler, kazananlardır.",
+            "Her engel, yeni bir fırsattır.",
+            "Zorluklar seni güçlendiren birer araçtır.",
+            "Zorluklar geçici, başarı kalıcıdır.",
+            "Zorlukların üstesinden gelmek, cesaret gerektirir.",
+            "Başarı, yılmadan çalışmaktan gelir.",
+            "Zorluklara meydan oku; başarının anahtarı orada saklıdır.",
+            "Unutma, her fırtınadan sonra güneş doğar.",
+            "Başarı, ter dökmeden kazanılmaz.",
+            "Bugün çalış, yarın gurur duy.",
+            "Başarı, disiplin ve sabır gerektirir.",
+            "Ders çalışmak, geleceğe yaptığın en büyük yatırımdır.",
+            "Verimli çalışmak, akıllı çalışmaktır.",
+            "Küçük adımlar at, ama her gün ilerle.",
+            "Ders çalışmak sıkıcı değil, hayallerine açılan kapıdır.",
+            "Başarı, sıkı çalışmanın sonucudur.",
+            "Zamanını akıllıca kullan, başarı seni bulur.",
+            "Başarı, çalışmanın diğer adıdır.",
+            "Her gün bir şey öğren, geleceğin değişsin.",
+            "Az ama sürekli çalış; bu seni zirveye taşır.",
+            "Başarı, çabayla kazanılır, şansla değil.",
+            "Verimli bir gün, mutlu bir geleceğin başlangıcıdır.",
+            "Hayallerin, çalışma azmini artırmalı.",
+            "Başarı, pes etmeyenlerin ödülüdür.",
+            "Her gün çalış, çünkü hayallerin buna değer.",
+            "Başarı, planlı çalışmayla gelir.",
+            "Disiplin, başarının temelidir.",
+            "Bugün çalışmazsan, yarın hayal edemezsin."
+        ];
+
+        // Rastgele motivasyon sözü seç
+        function setRandomQuote() {
+            const quoteElement = document.getElementById('motivationalQuote');
+            const randomIndex = Math.floor(Math.random() * motivationalQuotes.length);
+            quoteElement.textContent = motivationalQuotes[randomIndex];
+        }
+
+        // Duyuruları yükle
+        function loadAnnouncements() {
+            db.collection('announcements')
+                .orderBy('createdAt', 'desc')
+                .onSnapshot((snapshot) => {
+                    const announcementsDiv = document.getElementById('announcements');
+                    announcementsDiv.innerHTML = '';
+                    
+                    if (snapshot.empty) {
+                        announcementsDiv.innerHTML = '<p class="text-gray-500">Henüz duyuru bulunmamaktadır.</p>';
+                        return;
+                    }
+
+                    snapshot.forEach((doc) => {
+                        const announcement = doc.data();
+                        const announcementElement = document.createElement('div');
+                        announcementElement.className = 'p-4 border rounded bg-gray-50';
+                        announcementElement.innerHTML = `
+                            <h3 class="font-bold">${announcement.title}</h3>
+                            <p class="mt-2">${announcement.content}</p>
+                            <p class="text-sm text-gray-500 mt-2">${announcement.createdAt.toDate().toLocaleDateString()}</p>
+                        `;
+                        announcementsDiv.appendChild(announcementElement);
+                    });
+                });
+        }
+
+        // Linkleri kategoriye göre yükle
+        function loadLinks() {
+            db.collection('links').onSnapshot((snapshot) => {
+                const liveClassesDiv = document.getElementById('liveClasses');
+                const documentsDiv = document.getElementById('documents');
+                const examsDiv = document.getElementById('exams');
+
+                liveClassesDiv.innerHTML = '';
+                documentsDiv.innerHTML = '';
+                examsDiv.innerHTML = '';
+
+                snapshot.forEach((doc) => {
+                    const link = doc.data();
+                    
+                    // Link erişim kontrolü
+                    if (link.access === 'specific' && !link.allowedUsers.includes(currentUserId)) {
+                        return;
+                    }
+
+                    const linkElement = document.createElement('div');
+                    linkElement.className = 'p-4 border rounded bg-gray-50';
+                    linkElement.innerHTML = `
+                        <h3 class="font-bold">${link.title}</h3>
+                        <a href="${link.url}" target="_blank" class="text-blue-600 hover:text-blue-800 mt-2 inline-block">Görüntüle</a>
+                    `;
+
+                    switch(link.category) {
+                        case 'liveClass':
+                            liveClassesDiv.appendChild(linkElement);
+                            break;
+                        case 'documents':
+                            documentsDiv.appendChild(linkElement);
+                            break;
+                        case 'exams':
+                            examsDiv.appendChild(linkElement);
+                            break;
+                    }
+                });
+
+                // Boş kategori mesajları
+                if (!liveClassesDiv.hasChildNodes()) {
+                    liveClassesDiv.innerHTML = '<p class="text-gray-500">Henüz canlı ders linki bulunmamaktadır.</p>';
+                }
+                if (!documentsDiv.hasChildNodes()) {
+                    documentsDiv.innerHTML = '<p class="text-gray-500">Henüz doküman bulunmamaktadır.</p>';
+                }
+                if (!examsDiv.hasChildNodes()) {
+                    examsDiv.innerHTML = '<p class="text-gray-500">Henüz online deneme bulunmamaktadır.</p>';
+                }
+            });
+        }
+
+        // Çıkış yapma
+        function logout() {
+            firebase.auth().signOut()
+                .then(() => {
+                    window.location.href = 'login.html';
+                }).catch((error) => {
+                    alert('Hata: ' + error.message);
+                });
+        }
+
+        // Kullanıcı kontrolü ve bilgileri
+        firebase.auth().onAuthStateChanged((user) => {
+            if (user) {
+                currentUserId = user.uid;
+                db.collection('users').doc(user.uid).get()
+                    .then((doc) => {
+                        if (doc.exists) {
+                            const userData = doc.data();
+                            if (userData.role !== 'student' || !userData.isApproved) {
+                                alert('Bu sayfaya erişim yetkiniz yok!');
+                                window.location.href = 'login.html';
+                                return;
+                            }
+                            document.getElementById('studentName').textContent = 
+                                `${userData.firstName} ${userData.lastName}`;
+                        }
+                    });
+                loadAnnouncements();
+                loadLinks();
+            } else {
+                window.location.href = 'login.html';
+            }
+        });
+
+        // Sayfa yüklendiğinde
+        document.addEventListener('DOMContentLoaded', () => {
+            setRandomQuote();
+        });
+    </script>
+</body>
+</html>

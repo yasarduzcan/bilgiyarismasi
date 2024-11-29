@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Başarı UZEM - Öğrenci Yorumları</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" rel="stylesheet">
+    <style>
+        .review-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .review-card:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body class="bg-gray-50 pt-24">
+    <!-- Header -->
+    <header class="bg-white shadow-lg fixed w-full top-0 z-50">
+        <nav class="container mx-auto px-4 py-4 flex justify-between items-center">
+            <div class="text-2xl font-bold text-blue-600">Başarı UZEM</div>
+            <div class="hidden md:flex space-x-6">
+                <a href="index.html" class="hover:text-blue-600">Ana Sayfa</a>
+                <a href="kurslarimiz.html" class="hover:text-blue-600">Kurslarımız</a>
+                <a href="nasilkayitolabilirim.html" class="hover:text-blue-600">Nasıl Kayıt Olabilirim?</a>
+                <a href="yorumlar.html" class="hover:text-blue-600">Öğrenci Yorumları</a>
+                <a href="#" class="hover:text-blue-600">İletişim</a>
+            </div>
+            <div class="flex space-x-4">
+                <a href="login.html" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">Giriş Yap</a>
+                <a href="register.html" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700">Üye Ol</a>
+            </div>
+        </nav>
+    </header>
+
+    <div class="container mx-auto px-4 py-12">
+        <h1 class="text-4xl font-bold text-center mb-12 text-blue-800 animate__animated animate__fadeIn">Öğrencilerimizin Başarı UZEM Deneyimi</h1>
+        
+        <div class="grid md:grid-cols-3 gap-8">
+            <!-- Student Review 1 -->
+            <div class="review-card bg-white rounded-xl p-6 shadow-md animate__animated animate__fadeInUp">
+                <div class="flex items-center mb-4">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 text-blue-500 mr-4" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/>
+                    </svg>
+                    <div>
+                        <h3 class="font-semibold text-xl text-gray-800">Ayşe K.</h3>
+                        <div class="flex text-yellow-500">★★★★★</div>
+                    </div>
+                </div>
+                <p class="text-gray-600">"Başarı UZEM ile eğitim hayatımda büyük bir değişim yaşadım. Düzenli ders saatleri ve kaliteli eğitmenler sayesinde çalışırken bile eğitimime devam edebildim. Ali hoca ve Yaşar Hoca harika bir sistem kurmuş"</p>
+            </div>
+
+            <!-- Student Review 2 -->
+            <div class="review-card bg-white rounded-xl p-6 shadow-md animate__animated animate__fadeInUp animate__delay-1s">
+                <div class="flex items-center mb-4">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 text-green-500 mr-4" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/>
+                    </svg>
+                    <div>
+                        <h3 class="font-semibold text-xl text-gray-800">Mehmet A.</h3>
+                        <div class="flex text-yellow-500">★★★★★</div>
+                    </div>
+                </div>
+                <p class="text-gray-600">"Uzaktan eğitim platformları içinde en iyi seçenek Başarı UZEM. Canlı dersler, interaktif materyaller ve destek ekibi gerçekten mükemmel."</p>
+            </div>
+
+            <!-- Student Review 3 -->
+            <div class="review-card bg-white rounded-xl p-6 shadow-md animate__animated animate__fadeInUp animate__delay-2s">
+                <div class="flex items-center mb-4">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 text-purple-500 mr-4" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/>
+                    </svg>
+                    <div>
+                        <h3 class="font-semibold text-xl text-gray-800">Fatma Y.</h3>
+                        <div class="flex text-yellow-500">★★★★★</div>
+                    </div>
+                </div>
+                <p class="text-gray-600">"Çalışan bir anne olarak eğitimime devam etmek çok zordu. Başarı UZEM'in esnek ve etkili eğitim modeli hayatımı kolaylaştırdı."</p>
+            </div>
+
+            <!-- Remaining 9 reviews with similar structure -->
+            <div class="review-card bg-white rounded-xl p-6 shadow-md animate__animated animate__fadeInUp animate__delay-3s">
+                <div class="flex items-center mb-4">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 text-red-500 mr-4" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/>
+                    </svg>
+                    <div>
+                        <h3 class="font-semibold text-xl text-gray-800">Ahmet B.</h3>
+                        <div class="flex text-yellow-500">★★★★★</div>
+                    </div>
+                </div>
+                <p class="text-gray-600">"Teknoloji çağında Başarı UZEM gibi bir platformun olması çok önemli. Çalışırken bile eğitimime devam edebiliyorum."</p>
+            </div>
+
+            <div class="review-card bg-white rounded-xl p-6 shadow-md animate__animated animate__fadeInUp animate__delay-4s">
+                <div class="flex items-center mb-4">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 text-indigo-500 mr-4" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/>
+                    </svg>
+                    <div>
+                        <h3 class="font-semibold text-xl text-gray-800">Elif D.</h3>
+                        <div class="flex text-yellow-500">★★★★★</div>
+                    </div>
+                </div>
+                <p class="text-gray-600">"Başarı UZEM'in eğitim kalitesi gerçekten üst seviye. Dersler net, materyaller güncel ve eğitmenler çok profesyonel."</p>
+            </div>
+
+            <div class="review-card bg-white rounded-xl p-6 shadow-md animate__animated animate__fadeInUp animate__delay-5s">
+                <div class="flex items-center mb-4">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 text-pink-500 mr-4" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/>
+                    </svg>
+                    <div>
+                        <h3 class="font-semibold text-xl text-gray-800">Mustafa E.</h3>
+                        <div class="flex text-yellow-500">★★★★★</div>
+                    </div>
+                </div>
+                <p class="text-gray-600">"Gerçekten işini severek yapan insanların bir araya geldiği tek platform. Herşey için TEŞEKKÜRLER!"</p>
+            </div>
+
+            <div class="review-card bg-white rounded-xl p-6 shadow-md animate__animated animate__fadeInUp animate__delay-6s">
+                <div class="flex items-center mb-4">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 text-orange-500 mr-4" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/>
+                    </svg>
+                    <div>
+                        <h3 class="font-semibold text-xl text-gray-800">Zeynep K.</h3>
+                        <div class="flex text-yellow-500">★★★★★</div>
+                    </div>
+                </div>
+                <p class="text-gray-600">"Standartların üzerinde bir eğitim platformu. Başarı UZEM harika özellikler sunuyor."</p>
+            </div>
+<!-- Previous content remains the same, continuing with the remaining reviews -->
+
+            <div class="review-card bg-white rounded-xl p-6 shadow-md animate__animated animate__fadeInUp animate__delay-7s">
+                <div class="flex items-center mb-4">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 text-teal-500 mr-4" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/>
+                    </svg>
+                    <div>
+                        <h3 class="font-semibold text-xl text-gray-800">Hakan S.</h3>
+                        <div class="flex text-yellow-500">★★★★★</div>
+                    </div>
+                </div>
+                <p class="text-gray-600">"Başarı UZEM ile kendimi geliştirme fırsatı buldum. Sürekli güncellenen içerikler ve interaktif dersler motivasyonumu artırıyor."</p>
+            </div>
+
+            <div class="review-card bg-white rounded-xl p-6 shadow-md animate__animated animate__fadeInUp animate__delay-8s">
+                <div class="flex items-center mb-4">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 text-cyan-500 mr-4" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/>
+                    </svg>
+                    <div>
+                        <h3 class="font-semibold text-xl text-gray-800">Cansu T.</h3>
+                        <div class="flex text-yellow-500">★★★★★</div>
+                    </div>
+                </div>
+                <p class="text-gray-600">"Başarı UZEM'in en büyük avantajı öğrenciye sağladığı esneklik ve etkili rehberlik. Videoları istediğim kadar dinleyebilorum hiç bir kısıtlama yok. Hocalara anında ulaşabiliyorum, tüm sorularımı cevaplıyorlar"</p>
+            </div>
+
+            <div class="review-card bg-white rounded-xl p-6 shadow-md animate__animated animate__fadeInUp animate__delay-9s">
+                <div class="flex items-center mb-4">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 text-lime-500 mr-4" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/>
+                    </svg>
+                    <div>
+                        <h3 class="font-semibold text-xl text-gray-800">Emre G.</h3>
+                        <div class="flex text-yellow-500">★★★★★</div>
+                    </div>
+                </div>
+                <p class="text-gray-600">"Teknoloji ve eğitimi mükemmel bir şekilde birleştiren Başarı UZEM, Her detay düşünülmüş. Tek Düşünce Öğrenciye daha fazla fayda, Helal olsun sizlere."</p>
+            </div>
+        </div>
+    </div>
+
+    <footer class="bg-blue-800 text-white py-8 mt-12">
+        <div class="container mx-auto px-4 text-center">
+            <h2 class="text-2xl font-bold mb-4">Başarı UZEM ile Geleceğinizi İnşa Edin</h2>
+            <p class="mb-6">Esnek, kaliteli ve modern eğitim ile hedefinize ulaşın</p>
+            <div class="space-x-4">
+                <a href="register.html" class="bg-white text-blue-800 px-6 py-3 rounded-lg hover:bg-blue-100 transition">Hemen Kayıt Ol</a>
+                <a href="kurslarimiz" class="border border-white text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition">Detaylı Bilgi Al</a>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>
